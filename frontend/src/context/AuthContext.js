@@ -80,6 +80,19 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const getAppUrl = () => {
+    const configuredUrl = process.env.REACT_APP_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL;
+    if (configuredUrl) {
+      return configuredUrl.replace(/\/$/, '');
+    }
+
+    if (typeof window !== 'undefined' && window.location?.origin) {
+      return window.location.origin.replace(/\/$/, '');
+    }
+
+    return 'http://localhost:3000';
+  };
+
   const signup = async ({ name, email, password }) => {
     try {
       ensureSupabaseEnabled();
@@ -127,7 +140,7 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: getAppUrl()
         }
       });
 

@@ -1,48 +1,99 @@
-# GymEase
+# GymEase 🏋️‍♂️
 
-GymEase is a full-stack web application to discover gyms, view gym profiles, and read or add reviews.
+GymEase is a full-stack gym discovery platform (MVP) designed to help users find local gyms, view comprehensive profiles, and explore reviews. The platform is tailored for fitness enthusiasts, beginners, and anyone looking to join a gym with ease.
 
-## Project Structure
+## 🚀 Features
 
-- frontend: React client
-- backend: Express API
-- database: Firestore rules
+*   **Gym Discovery**: Easily search for gyms by name or city.
+*   **Gym Listing**: View a curated list of gyms with their basic details like address and summary.
+*   **Detailed Profiles**: Dive deep into a gym's profile, including its full address and a dedicated reviews section.
+*   **User Reviews**: Read feedback and ratings from other users to make an informed decision.
+*   **Responsive UI**: A modern, energetic user interface built with React.
 
-## Setup
+## 🛠️ Tech Stack
 
-### 1) Install dependencies
+### Frontend
+*   React 18
+*   React Router v6
+*   Axios for API requests
+*   Custom CSS (Modern energetic aesthetics)
 
-In one terminal:
-- cd backend
-- npm install
+### Backend
+*   Node.js & Express
+*   REST APIs
+*   In-memory data models (Currently, prepared for Firebase Firestore)
 
-In another terminal:
-- cd frontend
-- npm install
+## 📁 Project Structure
 
-### 2) Configure environment variables
+```text
+gymease/
+├── frontend/       # React client application
+├── backend/        # Express API and server logic
+├── database/       # Firestore rules and database config
+└── docs/           # Technical documentation and PRDs
+```
 
-Update values in `.env` at the project root for Firebase and API endpoints.
+## ⚙️ Getting Started
 
-### 3) Run the apps
+Follow these instructions to get the project up and running on your local machine.
 
-Backend:
-- cd backend
-- npm run dev
+### Prerequisites
 
-Frontend:
-- cd frontend
-- npm start
+*   Node.js (v14 or higher)
+*   npm (Node Package Manager)
 
-## API Endpoints
+### Installation
 
-- GET `/health`
-- GET `/api/gyms?q=search`
-- GET `/api/gyms/:gymId`
-- POST `/api/gyms`
-- GET `/api/reviews/:gymId`
-- POST `/api/reviews`
+1.  **Install Backend Dependencies**
+    ```bash
+    cd backend
+    npm install
+    ```
+2.  **Install Frontend Dependencies**
+    ```bash
+    cd frontend
+    npm install
+    ```
 
-## Notes
+### Configuration
 
-Current data models are in-memory for quick local development. Replace model layer with Firestore for persistence.
+Setup your environment variables. Create a `.env` file at the root of the project (if not present) and configure your Firebase and API endpoints.
+
+### Running the Application
+
+You will need two terminal windows to run both the frontend and backend servers simultaneously.
+
+**Terminal 1: Start the Backend Server**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2: Start the Frontend Application**
+```bash
+cd frontend
+npm start
+```
+
+*The frontend usually runs on `http://localhost:3000` and the backend on a specified port (e.g., `http://localhost:5000`)*.
+
+## 📡 API Endpoints (Current Version)
+
+The backend provides the following REST API endpoints:
+
+*   `GET /health` - Health check
+*   `GET /api/gyms?q=search` - Retrieve a list of gyms, optionally filtered by name or city (`q`)
+*   `GET /api/gyms/:gymId` - Retrieve detailed information for a specific gym (includes reviews)
+*   `POST /api/gyms` - Add a new gym
+*   `GET /api/reviews/:gymId` - Retrieve reviews for a specific gym
+*   `POST /api/reviews` - Submit a new review
+
+## 🗺️ Roadmap & Future Enhancements
+
+The current data models are in-memory to facilitate quick local development. The following features are planned for upcoming sprints:
+
+*   [ ] Wire up Firebase **Firestore** for scalable data persistence.
+*   [ ] Implement a frontend UI for adding reviews.
+*   [ ] Expand gym schema to include pricing, facility lists, aggregate ratings, and gallery images.
+*   [ ] Develop a "Compare Gyms" feature for side-by-side analysis.
+*   [ ] Enforce backend authentication utilizing JWT/Firebase Auth tokens.
