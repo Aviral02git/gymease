@@ -1,164 +1,139 @@
-# GymEase MVP – Technical Documentation (Implementation Based)
+# GymEase MVP - Technical Documentation
 
-## 1. Project Overview
+## 1) Executive Summary
 
-GymEase ek fitness discovery platform ka MVP hai jisme user gyms browse kar sakta hai, gym detail page dekh sakta hai, aur reviews read kar sakta hai.
+GymEase is a full-stack MVP for fitness discovery and trial booking.
 
-Current implementation focus:
-- Gym listing + search (name/city)
-- Gym detail page with embedded reviews
-- Basic review APIs
-- Simple responsive UI with React
+Current implementation supports:
+- Gym discovery and filtering
+- Gym profile exploration
+- Trial booking workflow with checkout placeholder
+- AI fitness coach chat (fitness-domain constrained)
+- Map-based place discovery from OpenStreetMap services
+- Partner onboarding forms for gyms and trainers (frontend-local persistence)
 
-## 2. Implemented MVP Objectives
+The product is implementation-first: key runtime entities are currently stored in memory on the backend, while selected frontend onboarding data is stored in browser `localStorage`.
 
-- Local gyms ko quickly discover karna
-- Gym details ek jagah show karna
-- Basic review visibility dena
+---
 
-> Note: Gym comparison UI, location auto-detection, booking/payment abhi implemented nahi hai.
+## 2) Product Scope (Current vs Planned)
 
-## 3. Target Users
+### Implemented in MVP
+- Gym listing, filtering, and search UI
+- Gym profile page with facilities, pricing, trial slot selection, and local review posting UI
+- Trial booking API with duplicate-prevention per gym+email
+- AI coach API with:
+  - local domain guardrails
+  - Groq chat completion integration
+- Discovery API using:
+  - Nominatim geocoding
+  - Overpass nearby place query
+- Supabase Auth context integration in frontend
 
-### Primary
-- College students
-- Beginners joining gym
-- Fitness enthusiasts
-- People shifting to new cities
+### Not yet fully production-ready
+- Persistent DB integration for gyms/reviews/bookings
+- Payment gateway integration (checkout is intentionally mocked)
+- Backend auth enforcement on business routes
+- End-to-end review persistence from frontend review form to backend datastore
+- Production observability (structured logging, tracing, monitoring)
 
-### Secondary
-- Gym owners (future listing workflows ke liye)
+---
 
-## 4. Feature Status (As Implemented)
+## 3) High-Level Architecture
 
-### 4.1 Gym Discovery ✅
-User `Find Gyms` page par search kar sakta hai.
+Frontend (React SPA)  
+$\downarrow$ HTTP/JSON (Axios)  
+Backend (Node.js + Express REST API)  
+$\downarrow$  
+In-memory model layer (gyms, reviews, bookings)
 
-Search behavior:
-- Query param `q`
-- Backend filter: `gym.name` ya `gym.city` contains `q` (case-insensitive)
+Supporting integrations:
+- Groq API (LLM coach responses)
+- OpenStreetMap Nominatim + Overpass (discovery)
+- Supabase Auth client (frontend authentication state)
+- Firebase Admin config scaffold + Firestore rules (future persistence)
 
-### 4.2 Gym Listing Page ✅
-Listing page me cards show hote hain:
-- Gym name
-- Formatted address (`address, city, state`)
-- Description
-- `View Profile` CTA
+---
 
-### 4.3 Gym Profile Page ✅
-Gym profile route: `/gyms/:gymId`
+## 4) Technology Stack
 
-Profile page me:
-- Gym name
-- City + state
-- Description
-- Gym-specific reviews list
-
-### 4.4 Basic Reviews ✅
-Reviews display fields:
-- `userName`
-- `rating`
-- `comment`
-
-### 4.5 Auth / Firebase Status ⚠️
-- Frontend `AuthContext` present (local state only)
-- Firebase config files present
-- Backend Firebase config present
-- **But runtime persistence currently in-memory model arrays par hai**
-
-## 5. System Architecture (Current)
-
-**Frontend (React + React Router + Axios)**  
-↓  
-**Backend API (Node.js + Express)**  
-↓  
-**In-memory data layer (JS arrays in models)**
-
-### Planned architecture (next step)
-Firestore integration available in structure/config, but fully wired persistence pending.
-
-## 6. Tech Stack (Actual)
-
-### Frontend
+## Frontend
 - React 18
 - React Router DOM 6
 - Axios
-- Custom CSS (`src/styles/global.css`)
+- TailwindCSS + PostCSS + Autoprefixer
+- Supabase JS SDK (auth)
+- Firebase Web SDK config scaffold
 
-Responsibilities:
-- Routes rendering (`/`, `/gyms`, `/gyms/:gymId`, `/contact`)
-- API consumption via service layer
-- Loading/error state handling
-
-### Backend
+## Backend
 - Node.js
-- Express
+- Express 4
 - CORS
 - dotenv
 - uuid
+- Firebase Admin SDK scaffold
 
-Responsibilities:
-- REST API endpoints expose karna
-- Request validation
-- In-memory model operations
-- Standard response envelope (`success`, `message`, `data`)
+## External APIs
+- Groq Chat Completions API
+- OpenStreetMap Nominatim
+- Overpass API
 
-### Data Layer
-- Current: In-memory arrays in model files
-- Prepared: Firebase Admin config + Firestore rules file
+---
 
-## 7. Folder Structure (Implemented)
+## 5) Monorepo Layout
 
-### Frontend
-- `src/components`: `Navbar`, `Footer`, `GymCard`, `SearchBar`, `ReviewCard`
-- `src/pages`: `Home`, `FindGyms`, `GymProfile`, `Contact`
-- `src/services`: API client + gym service
-- `src/hooks`: `useFetchGyms`
-- `src/context`: `AuthContext`
-- `src/firebase`: Firebase app init config
-- `src/utils`: helpers
-
-### Backend
-- `controllers`: `gymController`, `reviewController`
-- `routes`: `gymRoutes`, `reviewRoutes`
-- `models`: `gymModel`, `reviewModel`
-- `utils`: `responseHandler`
-- `config`: Firebase admin setup
-- `middleware`: auth middleware stub
-
-## 8. Data Schema (Current Runtime Models)
-
-### 8.1 Gym Object
-
-```json
-{
-  "id": "gym-1",
-  "name": "Iron Pulse Fitness",
-  "description": "Strength and conditioning center with expert trainers.",
-  "address": "21 Park Street",
-  "city": "Bengaluru",
-  "state": "KA"
-}
+```text
+gymease/
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   └── server.js
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── data/
+│   │   ├── firebase/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── supabase/
+│   │   └── utils/
+├── database/
+│   └── firestore_rules.txt
+└── docs/
+    └── GymEase_MVP_Technical_Documentation.md
 ```
 
-### 8.2 Review Object
+---
 
-```json
-{
-  "id": "review-1",
-  "gymId": "gym-1",
-  "userName": "Aviral",
-  "rating": 5,
-  "comment": "Great trainers and excellent equipment."
-}
-```
+## 6) Backend Technical Specification
 
-## 9. API Contract (Implemented)
+## 6.1 Server Configuration
+- Entry point: `backend/server.js`
+- Default port: `5000` (`PORT` env override)
+- Middleware:
+  - `cors()`
+  - `express.json()`
+- Health check: `GET /health`
+- Mounted route groups:
+  - `/api/gyms`
+  - `/api/reviews`
+  - `/api/bookings`
+  - `/api/coach`
+  - `/api/discovery`
+- Global handlers:
+  - route-not-found handler
+  - centralized error handler
 
-Base path: `/api`
+## 6.2 Response Envelope Standard
 
-All success responses envelope format:
-
+Success response:
 ```json
 {
   "success": true,
@@ -167,73 +142,333 @@ All success responses envelope format:
 }
 ```
 
-### 9.1 Health Check
-`GET /health`
+Error response:
+```json
+{
+  "success": false,
+  "message": "...",
+  "details": null
+}
+```
 
-### 9.2 Get All Gyms
-`GET /api/gyms`
+## 6.3 API Endpoints
 
-Optional query:
-- `q`: search by gym name or city
+### System
+- `GET /health`
 
-### 9.3 Get Gym Details
-`GET /api/gyms/:gymId`
+### Gyms
+- `GET /api/gyms?q=<string>`
+  - Query filter: case-insensitive match on `name` or `city`
+- `GET /api/gyms/:gymId`
+  - Returns gym object merged with gym-specific `reviews`
+- `POST /api/gyms`
+  - Required: `name`
+  - Optional: `description`, `address`, `city`, `state`, `trialFee`, `availableTrialSlots`
 
-Returns gym object + `reviews` array merged in `data`.
+### Reviews
+- `GET /api/reviews/:gymId`
+- `POST /api/reviews`
+  - Required: `gymId`, `rating`, `comment`
+  - Optional: `userName` (defaults to `Anonymous`)
 
-### 9.4 Create Gym
-`POST /api/gyms`
+### Bookings
+- `GET /api/bookings/gym/:gymId`
+- `POST /api/bookings/trial`
+  - Required: `gymId`, `userEmail`, `slot`
+  - Optional: `userName`, `visitDate`
+  - Validations:
+    - gym must exist
+    - slot must be one of gym `availableTrialSlots`
+    - one trial booking per `gymId + normalized userEmail`
 
-Required:
-- `name`
+### AI Coach
+- `POST /api/coach/chat`
+  - Required: `message`
+  - Optional: `context` with `gyms`, `userProfile`
+  - Domain guard:
+    - blocks non-fitness queries before model call
+  - On success returns: `reply`, `model`, `inScope`
 
-Optional:
-- `description`, `address`, `city`, `state`
+### Discovery
+- `GET /api/discovery/places?city=<city>&radius=<m>&limit=<n>`
+- `GET /api/discovery/places?lat=<num>&lon=<num>&radius=<m>&limit=<n>`
+  - Must provide either `city` or `lat/lon`
+  - Defaults: `radius=12000`, `limit=40`
 
-### 9.5 Get Reviews by Gym
-`GET /api/reviews/:gymId`
+## 6.4 Domain Logic by Module
 
-### 9.6 Add Review
-`POST /api/reviews`
+### Gym model
+- In-memory `gyms[]`
+- Creates UUID for new gyms
+- Applies default trial fee and default trial slots if omitted
 
-Required body fields:
-- `gymId`
-- `rating`
-- `comment`
+### Review model
+- In-memory `reviews[]`
+- Creates UUID for new reviews
+- Casts `rating` to number
 
-Optional:
-- `userName` (default: `Anonymous`)
+### Booking model
+- In-memory `bookings[]`
+- Email normalization (`trim + lowercase`)
+- Duplicate guard per gym-email pair
+- Slot validation against source gym slots
+- Stores booking status and ISO timestamp
 
-## 10. Frontend User Flow (Current)
+### Discovery provider
+- Geocodes city via Nominatim when coordinates are not provided
+- Queries Overpass fitness-related tags (`fitness_centre`, `gym`, `sport=fitness`, etc.)
+- Normalizes heterogeneous OSM elements into product schema
+- Adds inferred attributes:
+  - tier (`Lite`, `Prime`, `Platinum`)
+  - monthly price
+  - rating
+  - tags
 
-Home (`/`)  
-↓  
-Find Gyms (`/gyms`)  
-↓  
-Gym Profile (`/gyms/:gymId`)  
-↓  
-Read Reviews
+### Coach controller
+- Local lexical and regex-based fitness-domain detection
+- Prompted “GymEase Coach” role behavior
+- Uses `GROQ_MODEL` fallback: `llama-3.3-70b-versatile`
 
-## 11. Current Limitations
+---
 
-- Data persistence restart ke baad reset ho jata hai (in-memory)
-- No authentication enforcement in API routes
-- No review submission UI in frontend yet
-- No gym comparison module yet
-- No geo-location based nearby ranking yet
-- No pricing/facility/rating fields in gym model currently
+## 7) Frontend Technical Specification
 
-## 12. Recommended Next Sprint
+## 7.1 Routing (React Router)
+- `/` - Home
+- `/gyms` - Find Gyms
+- `/featured-locations` - Featured locations page
+- `/partner` - Partner onboarding
+- `/gyms/:gymId` - Gym profile
+- `/gyms/:gymId/trial-checkout` - Trial checkout
+- `/contact` - Contact
 
-1. Firestore persistence wire-up (`gymModel`/`reviewModel` migration)
-2. Frontend “Add Review” form
-3. Gym schema expand with `price`, `facilities`, `rating`, `images`
-4. Gym compare screen (`selected gyms` side-by-side)
-5. Auth token verification in middleware
+## 7.2 Service Layer
+- `api.js`: Axios instance with base URL from `REACT_APP_API_BASE_URL` (fallback `http://localhost:5000/api`)
+- `gymService`: list + single gym fetch
+- `bookingService`: create trial booking + gym bookings fetch
+- `coachService`: send chat message
+- `discoveryService`: discover places by city or coordinates
 
-## 13. Success Metrics (MVP)
+## 7.3 Key Frontend Feature Modules
 
-- Number of gyms created/listed
-- Search-to-profile click-through
-- Reviews per gym
-- Returning sessions
+### Find Gyms page
+- Combines local seed data and map-discovered external places
+- Filters by:
+  - text search
+  - location query
+  - tier
+  - max monthly price
+  - optional nearby distance using browser geolocation
+
+### Gym Profile page
+- Current implementation uses local in-file `GYM_DATA` placeholder
+- Supports:
+  - gallery and facility UI
+  - local review posting (client state)
+  - trial slot/date selection
+  - navigation to checkout
+
+### Trial Checkout page
+- Mock payment flow (simulated delay)
+- On confirmation calls `POST /api/bookings/trial`
+- Handles and renders booking errors/success messages
+
+### Featured Locations page
+- Loads discovery data for Mumbai, Bengaluru, and Delhi in parallel
+- Deduplicates by place ID
+- Displays grouped views:
+  - prime locations
+  - most viewed
+  - busy hotspots
+
+### AI Coach widget
+- Floating chat interface
+- Quick prompts
+- Sends gym context and user profile context to backend coach API
+
+### Partner Onboarding page
+- Separate forms for gym and trainer onboarding
+- Persists submissions in browser `localStorage`
+- Displays recent onboarding submissions
+
+### Auth context
+- Supabase-based auth wrapper
+- Supports:
+  - signup
+  - email/password login
+  - Google OAuth login
+  - logout
+- Provides normalized human-readable auth error messages
+
+## 7.4 UI/Theming
+- Tailwind custom theme includes:
+  - dark background palette
+  - neon rose primary accent
+  - animation utilities (`fade-in`, `slide-up`)
+
+---
+
+## 8) Data Contracts
+
+## 8.1 Gym entity (backend model)
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "address": "string",
+  "city": "string",
+  "state": "string",
+  "trialFee": 99,
+  "availableTrialSlots": ["6:00 AM - 7:00 AM"]
+}
+```
+
+## 8.2 Review entity (backend model)
+```json
+{
+  "id": "uuid",
+  "gymId": "string",
+  "userName": "string",
+  "rating": 5,
+  "comment": "string"
+}
+```
+
+## 8.3 Booking entity (backend model)
+```json
+{
+  "id": "uuid",
+  "gymId": "string",
+  "gymName": "string",
+  "userEmail": "string",
+  "userName": "string",
+  "slot": "string",
+  "visitDate": "YYYY-MM-DD",
+  "feeAmount": 99,
+  "status": "confirmed",
+  "createdAt": "ISO-8601"
+}
+```
+
+## 8.4 Discovery place entity (normalized)
+```json
+{
+  "id": "osm-<type>-<id>",
+  "name": "string",
+  "location": "string",
+  "city": "string",
+  "state": "string",
+  "latitude": 0,
+  "longitude": 0,
+  "monthlyPrice": 2999,
+  "tier": "Prime",
+  "rating": 4.6,
+  "reviews": 120,
+  "viewsPerMonth": 5400,
+  "peakOccupancy": 82,
+  "isPrimeLocation": true,
+  "tags": ["Gym", "Paid"],
+  "image": "url",
+  "source": "openstreetmap"
+}
+```
+
+---
+
+## 9) Environment Variables
+
+## Backend (`backend/.env`)
+- `PORT` (optional, default `5000`)
+- `GROQ_API_KEY` (required for AI coach responses)
+- `GROQ_MODEL` (optional)
+- `FIREBASE_PROJECT_ID` (optional scaffold)
+- `FIREBASE_CLIENT_EMAIL` (optional scaffold)
+- `FIREBASE_PRIVATE_KEY` (optional scaffold; newline escaped)
+
+## Frontend (`frontend/.env`)
+- `REACT_APP_API_BASE_URL` (optional; default localhost backend API)
+- Firebase web config keys:
+  - `REACT_APP_FIREBASE_API_KEY`
+  - `REACT_APP_FIREBASE_AUTH_DOMAIN`
+  - `REACT_APP_FIREBASE_PROJECT_ID`
+  - `REACT_APP_FIREBASE_STORAGE_BUCKET`
+  - `REACT_APP_FIREBASE_MESSAGING_SENDER_ID`
+  - `REACT_APP_FIREBASE_APP_ID`
+- Supabase config keys:
+  - `REACT_APP_SUPABASE_URL`
+  - `REACT_APP_SUPABASE_ANON_KEY`
+- Optional site URL for OAuth redirect logic:
+  - `REACT_APP_SITE_URL`
+
+---
+
+## 10) Security and Guardrails
+
+- API-level validation exists for required request fields in all write routes.
+- Booking endpoint enforces slot validity and duplicate booking prevention.
+- Coach endpoint includes out-of-domain blocking before LLM invocation.
+- Firestore rules file exists with authenticated write restrictions (future DB usage).
+
+Current gaps:
+- No backend JWT/session enforcement on most business APIs.
+- No rate limiting or abuse controls yet.
+- No server-side schema validation library (e.g., Zod/Joi) yet.
+
+---
+
+## 11) Operational Characteristics
+
+- Backend and frontend are independently runnable apps.
+- In-memory backend data resets on server restart.
+- External API dependencies may fail or rate-limit; UI degrades gracefully in key discovery screens.
+- Node 18+ is recommended (backend uses global `fetch`).
+
+---
+
+## 12) Known Limitations
+
+1. Persistent storage is not yet wired for gyms/reviews/bookings.
+2. Gym profile page currently uses local dummy data instead of backend fetch for full detail.
+3. Checkout is a mock payment flow.
+4. Partner onboarding is frontend-local (`localStorage`) and not server-persisted.
+5. End-to-end authorization is incomplete.
+
+---
+
+## 13) Recommended Next Milestones
+
+1. **Persistence migration**
+   - Move `gymModel`, `reviewModel`, and `bookingModel` to Firestore or SQL.
+2. **Auth hardening**
+   - Enforce token verification middleware for write operations.
+3. **Payments**
+   - Integrate Razorpay/Stripe and add payment state reconciliation.
+4. **Data validation**
+   - Introduce request schema validation and typed contracts.
+5. **Observability**
+   - Add structured logs, error monitoring, and request metrics.
+6. **Frontend data consistency**
+   - Remove local gym profile dummy data and source from backend services.
+
+---
+
+## 14) MVP Success Metrics
+
+- Discovery funnel:
+  - search-to-profile click-through rate
+  - map import usage rate
+- Engagement:
+  - coach chat sessions per user
+  - gym profile dwell time
+- Conversion:
+  - trial booking completion rate
+  - booking error rate by category
+- Supply growth:
+  - onboarding submissions (gyms/trainers)
+
+---
+
+## 15) Versioning Note
+
+This document reflects the implementation currently present in the repository as of April 2026 and is intentionally aligned with code behavior, not aspirational architecture.
