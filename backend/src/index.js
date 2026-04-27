@@ -10,15 +10,11 @@ const recommendationRoutes = require('./routes/recommendationRoutes');
 const fitnessTrackerRoutes = require('./routes/fitnessTrackerRoutes');
 const comparisonRoutes = require('./routes/comparisonRoutes');
 const { notFoundHandler, errorHandler } = require('./utils/responseHandler');
-const { connectDB } = require('./config/db');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-
-// Connect to NeonDB PostgreSQL
-connectDB();
 
 app.use(cors());
 app.use(express.json());
@@ -35,8 +31,6 @@ app.use('/api/discovery', discoveryRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/fitness', fitnessTrackerRoutes);
 app.use('/api/comparison', comparisonRoutes);
-// backend/app.js
-app.use("/api/dashboard", require("./routes/dashboard"));
 
 app.use(notFoundHandler);
 app.use(errorHandler);

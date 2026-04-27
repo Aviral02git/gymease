@@ -57,9 +57,9 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-3">
             {!loading && user ? (
               <>
-                <Link to="/dashboard" className="text-sm text-textMuted hidden lg:block hover:text-white transition-colors cursor-pointer">
-                  Hi, <span className="text-white font-semibold hover:underline">{user.displayName || user.email?.split('@')[0] || 'Athlete'}</span>
-                </Link>
+                <span className="text-sm text-textMuted hidden lg:block">
+                  Hi, <span className="text-white font-semibold">{user.displayName || user.email?.split('@')[0] || 'Athlete'}</span>
+                </span>
                 <Button variant="ghost" size="sm" className="font-bold" onClick={handleLogout}>Logout</Button>
               </>
             ) : (
@@ -105,12 +105,7 @@ const Navbar = () => {
 
             <div className="pt-2 grid grid-cols-2 gap-2">
               {!loading && user ? (
-                <>
-                  <Link to="/dashboard" className="w-full" onClick={() => setIsMobileOpen(false)}>
-                    <Button variant="primary" size="sm" className="w-full">Dashboard</Button>
-                  </Link>
-                  <Button variant="ghost" size="sm" className="w-full" onClick={handleLogout}>Logout</Button>
-                </>
+                <Button variant="ghost" size="sm" className="w-full col-span-2" onClick={handleLogout}>Logout</Button>
               ) : (
                 <>
                   <Button variant="ghost" size="sm" className="w-full" onClick={() => openAuth('login')}>Login</Button>

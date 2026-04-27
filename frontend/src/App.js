@@ -10,7 +10,6 @@ import GymComparison from './pages/Features/GymComparison';
 import FeaturedLocations from './pages/Discovery/FeaturedLocations';
 import PartnerOnboarding from './pages/Auth/PartnerOnboarding';
 import HealthCoachBot from './components/common/HealthCoachBot';
-import Dashboard from "./Dashboard";
 
 function App() {
   return (
@@ -26,7 +25,6 @@ function App() {
           <Route path="/gyms/:gymId" element={<GymProfile />} />
           <Route path="/gyms/:gymId/trial-checkout" element={<TrialCheckout />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
       <Footer />
