@@ -9,7 +9,7 @@ async function createTrialBooking(req, res) {
       return sendError(res, 'gymId, userEmail and slot are required', 400);
     }
 
-    const booking = bookingModel.createTrialBooking({
+    const booking = await bookingModel.createTrialBooking({
       gymId,
       userEmail,
       userName,
@@ -26,7 +26,7 @@ async function createTrialBooking(req, res) {
 async function getGymBookings(req, res) {
   try {
     const { gymId } = req.params;
-    const bookings = bookingModel.getBookingsByGymId(gymId);
+    const bookings = await bookingModel.getBookingsByGymId(gymId);
     return sendSuccess(res, bookings, 'Bookings fetched successfully');
   } catch (error) {
     return sendError(res, error.message, error.status || 500);

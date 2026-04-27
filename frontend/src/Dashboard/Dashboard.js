@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../supabase/supabaseClient";
+import api from "../services/api";
 import UpcomingBookings from "./UpcomingBookings";
 import ActivePlan from "./ActivePlan";
 import WorkoutHistory from "./WorkoutHistory";
@@ -20,61 +20,27 @@ export default function Dashboard() {
         setLoading(false);
         return;
       }
-      fetchDashboardData(user.id);
+      fetchDashboardData(user.email);
     }
   }, [user, authLoading]);
 
-  async function fetchDashboardData(uid) {
+  async function fetchDashboardData(email) {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([
-        fetchBookings(uid),
-        fetchActivePlan(uid),
-        fetchWorkoutHistory(uid),
-      ]);
+      const response = await api.get(`/dashboard/${email}`);
+      const data = response.data?.data;
+      if (data) {
+        setBookings(data.bookings || []);
+        setPlan(data.plan || null);
+        setWorkoutHistory(data.workoutHistory || []);
+      }
     } catch (err) {
       console.error("Dashboard fetch error:", err);
       setError("Failed to load dashboard data. Please try again.");
     } finally {
       setLoading(false);
     }
-  }
-
-  async function fetchBookings(uid) {
-    const now = new Date().toISOString();
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("*")
-      .eq("userId", uid)
-      .gte("slotDate", now)
-      .order("slotDate", { ascending: true });
-    
-    if (error) console.error(error);
-    setBookings(data || []);
-  }
-
-  async function fetchActivePlan(uid) {
-    const { data, error } = await supabase
-      .from("userPlans")
-      .select("*")
-      .eq("id", uid)
-      .single();
-    
-    if (data) {
-      setPlan(data);
-    }
-  }
-
-  async function fetchWorkoutHistory(uid) {
-    const { data, error } = await supabase
-      .from("workoutLogs")
-      .select("*")
-      .eq("userId", uid)
-      .order("date", { ascending: false });
-      
-    if (error) console.error(error);
-    setWorkoutHistory(data || []);
   }
 
   if (loading || authLoading) {

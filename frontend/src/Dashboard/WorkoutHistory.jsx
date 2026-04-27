@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../supabase/supabaseClient";
+import api from "../services/api";
 
 const WORKOUT_TYPES = [
   "Strength training",
@@ -40,16 +40,15 @@ export default function WorkoutHistory({ history }) {
     setSaving(true);
     try {
       if (!user) throw new Error("Not authenticated");
-      const { error } = await supabase.from("workoutLogs").insert([{
-        userId: user.id,
+      const { data } = await api.post("/dashboard/log-workout", {
+        email: user.email,
         type: form.type,
         duration: Number(form.duration),
         notes: form.notes,
         gymName: form.gymName,
-        date: new Date().toISOString(),
-      }]);
+      });
       
-      if (error) throw error;
+      if (!data?.success) throw new Error("Failed");
       setShowModal(false);
       setForm({ type: "Strength training", duration: "", notes: "", gymName: "" });
       window.location.reload();

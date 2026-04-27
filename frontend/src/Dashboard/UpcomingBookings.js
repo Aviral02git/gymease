@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../supabase/supabaseClient";
+import api from "../services/api";
 
 const STATUS_LABELS = {
   confirmed: { label: "Confirmed", cls: "badge--green" },
@@ -38,12 +38,8 @@ export default function UpcomingBookings({ bookings }) {
     if (!window.confirm("Cancel this trial booking?")) return;
     setCancelling(bookingId);
     try {
-      const { error } = await supabase
-        .from("bookings")
-        .update({ status: "cancelled" })
-        .eq("id", bookingId);
-        
-      if (error) throw error;
+      const { data } = await api.post("/dashboard/cancel-booking", { bookingId });
+      if (!data?.success) throw new Error("Failed");
       // optimistic UI — parent should refetch or use real-time listener
       window.location.reload();
     } catch (err) {
@@ -74,16 +70,16 @@ export default function UpcomingBookings({ bookings }) {
       ) : (
         <ul className="booking-list">
           {bookings.map((b) => {
-            const days = daysUntil(b.slotDate);
+            const days = daysUntil(b.visitDate || b.createdAt);
             const status = STATUS_LABELS[b.status] || STATUS_LABELS.pending;
             return (
               <li key={b.id} className="booking-item">
                 <div className="booking-item__left">
                   <div className="booking-item__gym">{b.gymName}</div>
                   <div className="booking-item__meta">
-                    <span>{formatDate(b.slotDate)}</span>
+                    <span>{formatDate(b.visitDate || b.createdAt)}</span>
                     <span className="sep">·</span>
-                    <span>{formatTime(b.slotDate)}</span>
+                    <span>{b.slot || "TBD"}</span>
                   </div>
                   {b.trainerName && (
                     <div className="booking-item__trainer">

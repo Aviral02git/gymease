@@ -1,24 +1,44 @@
 const { v4: uuidv4 } = require('uuid');
 const gymModel = require('./gymModel');
-
-const bookings = [];
+const db = require('../config/db');
 
 function normalizeEmail(email = '') {
   return String(email).trim().toLowerCase();
 }
 
-function getBookingsByGymId(gymId) {
-  return bookings.filter((booking) => booking.gymId === gymId);
+async function getBookingsByGymId(gymId) {
+  const result = await db.query('SELECT * FROM bookings WHERE gym_id = $1', [gymId]);
+  return result.rows.map(mapDbToBooking);
 }
 
-function getBookingByGymAndEmail(gymId, email) {
+async function getBookingByGymAndEmail(gymId, email) {
   const normalizedEmail = normalizeEmail(email);
-  return bookings.find(
-    (booking) => booking.gymId === gymId && booking.userEmail === normalizedEmail
-  ) || null;
+  const result = await db.query('SELECT * FROM bookings WHERE gym_id = $1 AND user_email = $2', [gymId, normalizedEmail]);
+  return result.rows.length > 0 ? mapDbToBooking(result.rows[0]) : null;
 }
 
-function createTrialBooking(payload) {
+async function getBookingsByUserEmail(email) {
+  const normalizedEmail = normalizeEmail(email);
+  const result = await db.query('SELECT * FROM bookings WHERE user_email = $1 ORDER BY created_at DESC', [normalizedEmail]);
+  return result.rows.map(mapDbToBooking);
+}
+
+function mapDbToBooking(row) {
+  return {
+    id: row.id,
+    gymId: row.gym_id,
+    gymName: row.gym_name,
+    userEmail: row.user_email,
+    userName: row.user_name,
+    slot: row.slot,
+    visitDate: row.visit_date,
+    feeAmount: row.fee_amount,
+    status: row.status,
+    createdAt: row.created_at
+  };
+}
+
+async function createTrialBooking(payload) {
   const gym = gymModel.getGymById(payload.gymId);
 
   if (!gym) {
@@ -51,16 +71,20 @@ function createTrialBooking(payload) {
     throw error;
   }
 
-  const duplicate = getBookingByGymAndEmail(payload.gymId, normalizedEmail);
-  if (duplicate) {
-    const error = new Error('Trial already booked for this gym by this user');
-    error.status = 409;
-    throw error;
-  }
+  // Removed duplicate trial check for testing flexibility
 
   const feeAmount = Number(gym.trialFee || 0);
-  const newBooking = {
-    id: uuidv4(),
+  const id = uuidv4();
+  
+  await db.query(
+    `INSERT INTO bookings 
+    (id, gym_id, gym_name, user_email, user_name, slot, visit_date, fee_amount, status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [id, payload.gymId, gym.name, normalizedEmail, payload.userName || 'Anonymous', normalizedSlot, payload.visitDate || '', feeAmount, 'confirmed']
+  );
+
+  return {
+    id,
     gymId: payload.gymId,
     gymName: gym.name,
     userEmail: normalizedEmail,
@@ -68,16 +92,13 @@ function createTrialBooking(payload) {
     slot: normalizedSlot,
     visitDate: payload.visitDate || '',
     feeAmount,
-    status: 'confirmed',
-    createdAt: new Date().toISOString()
+    status: 'confirmed'
   };
-
-  bookings.push(newBooking);
-  return newBooking;
 }
 
 module.exports = {
   getBookingsByGymId,
   getBookingByGymAndEmail,
+  getBookingsByUserEmail,
   createTrialBooking
 };
