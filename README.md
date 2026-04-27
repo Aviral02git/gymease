@@ -19,7 +19,7 @@ GymEase includes:
 - AI Health Coach (domain-guarded fitness chat powered by Groq API).
 - Partner onboarding forms for gyms and trainers/coaches (stored in browser localStorage).
 - **🧠 Smart Recommendation Engine** - AI-powered gym recommendations based on budget, goals, time, and distance.
-- **💪 Fitness Progress Tracker** - Log workouts, track weight, monitor calories, view progress charts, and maintain streaks.
+
 
 ## Tech Stack
 
