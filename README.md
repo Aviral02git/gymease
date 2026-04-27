@@ -1,13 +1,13 @@
 # GymEase
 
-GymEase is a full-stack fitness discovery MVP that helps users discover gyms, evaluate plans, view gym profiles, book trial slots, and chat with an AI fitness coach.
+GymEase is a full-stack fitness discovery MVP that helps users discover gyms, evaluate plans, view gym profiles, book trial slots, chat with an AI fitness coach, **get smart gym recommendations**, and **track their fitness progress**.
 
 ## Overview
 
 GymEase includes:
 
-- A React frontend with pages for gym discovery, featured locations, trial checkout, and partner onboarding.
-- A Node.js + Express backend with REST APIs for gyms, reviews, trial bookings, AI coach chat, and map-based place discovery.
+- A React frontend with pages for gym discovery, featured locations, trial checkout, partner onboarding, **smart gym recommendations**, and **fitness progress tracking**.
+- A Node.js + Express backend with REST APIs for gyms, reviews, trial bookings, AI coach chat, map-based place discovery, **smart recommendations**, and **fitness tracking**.
 - Firebase config scaffolding (frontend + backend), with current runtime data primarily in-memory for MVP speed.
 
 ## Core Features
@@ -18,6 +18,8 @@ GymEase includes:
 - Trial booking flow with checkout placeholder and backend booking persistence (in-memory).
 - AI Health Coach (domain-guarded fitness chat powered by Groq API).
 - Partner onboarding forms for gyms and trainers/coaches (stored in browser localStorage).
+- **🧠 Smart Recommendation Engine** - AI-powered gym recommendations based on budget, goals, time, and distance.
+- **💪 Fitness Progress Tracker** - Log workouts, track weight, monitor calories, view progress charts, and maintain streaks.
 
 ## Tech Stack
 

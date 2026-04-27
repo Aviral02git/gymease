@@ -1,14 +1,15 @@
 import { Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import FindGyms from './pages/FindGyms';
-import GymProfile from './pages/GymProfile';
-import Contact from './pages/Contact';
-import TrialCheckout from './pages/TrialCheckout';
-import FeaturedLocations from './pages/FeaturedLocations';
-import PartnerOnboarding from './pages/PartnerOnboarding';
-import HealthCoachBot from './components/HealthCoachBot';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import Home from './pages/Discovery/Home';
+import FindGyms from './pages/Discovery/FindGyms';
+import GymProfile from './pages/Discovery/GymProfile';
+import Contact from './pages/Features/Contact';
+import TrialCheckout from './pages/Features/TrialCheckout';
+import GymComparison from './pages/Features/GymComparison';
+import FeaturedLocations from './pages/Discovery/FeaturedLocations';
+import PartnerOnboarding from './pages/Auth/PartnerOnboarding';
+import HealthCoachBot from './components/common/HealthCoachBot';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/gyms" element={<FindGyms />} />
           <Route path="/featured-locations" element={<FeaturedLocations />} />
           <Route path="/partner" element={<PartnerOnboarding />} />
+          <Route path="/compare-gyms" element={<GymComparison />} />
           <Route path="/gyms/:gymId" element={<GymProfile />} />
           <Route path="/gyms/:gymId/trial-checkout" element={<TrialCheckout />} />
           <Route path="/contact" element={<Contact />} />
